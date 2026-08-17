@@ -1,0 +1,66 @@
+# 「箱子里面有什么（WhatsInTheBox）」DEV 一键联调
+# 设计原则：镜像里只有运行环境 + 依赖；源码运行时通过 bind mount 外挂进容器。
+# 改代码即时生效（后端 --reload 热重载，前端 vite HMR）。
+#
+# 网络互通：
+#   - 两个服务同处默认 bridge 网络，可用服务名互相访问：
+#       前端容器 -> 后端容器：http://backend:8004
+#   - 后端依赖的 MySQL 是公司已有库 10.4.215.193（外部，不在 compose 内），
+#     后端启动时由 backend/.env 里的 DB_HOST 读取（python-dotenv 自动加载）。
+#
+# 用法：
+#   docker compose up -d        # 后台启动
+#   docker compose logs -f      # 看日志
+#   docker compose down         # 停止
+#
+# 注意：本文件为 DEV 取向（外挂源码）。生产部署请用各自目录里的 Dockerfile
+#       （backend/Dockerfile、frontend/Dockerfile，多阶段构建 + COPY 源码）。
+
+name: whatsinthebox
+
+services:
+  # ---------------- 后端（FastAPI / uvicorn）----------------
+  backend:
+    build:
+      context: backend
+      # dockerfile 相对 context（backend）的路径
+      dockerfile: ../docker/backend.Dockerfile
+    image: whatsinthebox-backend:latest
+    ports:
+      - "8004:8004"
+    # 环境变量（同时源码挂载也会带 .env 进来，python-dotenv 会再次加载，二者一致）
+    env_file:
+      - backend/.env
+    # 源码外挂：整目录挂到 /app（pip 装的依赖在 site-packages，不在 /app，故安全）
+    volumes:
+      - ./backend:/app
+    # 显式声明命令（与镜像 CMD 一致，便于覆盖/确认）
+    command: ["python", "run.py", "--host", "0.0.0.0", "--port", "8004", "--reload"]
+    restart: unless-stopped
+
+  # ---------------- 前端（Vue3 + Vite dev server）----------------
+  frontend:
+    build:
+      context: frontend
+      dockerfile: ../docker/frontend.Dockerfile
+    image: whatsinthebox-frontend:latest
+    ports:
+      - "5176:5176"
+    # 让 vite 代理打到后端容器（vite.config.ts 读取该变量；缺省回退 127.0.0.1:8004）
+    environment:
+      - API_PROXY_TARGET=http://backend:8004
+    # 关键：「选择性挂载」保留镜像里烘焙好的 /app/node_modules 与 /app/dist：
+    # 若整目录 ./frontend:/app，会把宿主机（可能无 node_modules 或被覆盖）盖掉镜像依赖。
+    # 这里只挂源码与配置文件，node_modules 继续用镜像内烘焙的版本。
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/package.json:/app/package.json
+      - ./frontend/package-lock.json:/app/package-lock.json
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+      - ./frontend/tsconfig.node.json:/app/tsconfig.node.json
+    depends_on:
+      - backend
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5176"]
+    restart: unless-stopped

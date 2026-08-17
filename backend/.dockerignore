@@ -1,0 +1,9 @@
+# 后端镜像构建上下文排除项（dev 取向：源码运行时外挂，不 COPY 进镜像，
+# 这里主要是排除大目录/产物，缩小 build context、加快构建）。
+uploads/
+__pycache__/
+*.pyc
+.env
+tests/
+*.log
+.workbuddy/

@@ -1,0 +1,17 @@
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+dist-ssr/
+
+# 类型检查 / tsconfig 产生的临时文件（composite 项目的 emit 重定向到 node_modules/.tmp）
+*.tsbuildinfo
+
+# 切勿提交由 vite.config.ts 编译生成的影子配置（会遮蔽 .ts 源码，且让 dev server 用旧产物）
+vite.config.js
+vite.config.d.ts
+
+# 日志
+*.log
+npm-debug.log*

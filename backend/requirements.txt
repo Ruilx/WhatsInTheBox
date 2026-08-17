@@ -1,0 +1,13 @@
+# 「箱子里面有什么（WhatsInTheBox）」后端依赖
+# 稳定版本，不盲目追新。不含 DBUtils（不使用连接池）、不含 qrcode（不生成二维码）。
+
+fastapi>=0.110,<1.0
+uvicorn[standard]>=0.29
+gunicorn>=21.2; python_version >= "3.10"
+mysqlclient>=2.2
+pydantic>=2.6
+pydantic-settings>=2.2
+python-dotenv>=1.0.0
+Pillow>=10.0
+pillow-heif>=0.1
+python-multipart>=0.0.9

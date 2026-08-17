@@ -1,0 +1,462 @@
+/* 全局基础样式（dev-plan v4 §1.1）。
+
+   - 黑体中文（变量 --font-cjk）
+   - 过渡 / 呼吸 / 淡入淡出动效
+   - 左右合适 margin + max-width 居中
+   - 移动端响应式媒体查询（ant-design-vue 桌面优先，需适配手机）
+*/
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-cjk);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--transition), color var(--transition);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+img {
+  max-width: 100%;
+}
+
+/* ---------- 布局 ---------- */
+.app-root {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+  padding-top: var(--header-h);
+}
+.app-main--full {
+  padding-top: 0;
+}
+
+.page-container {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space);
+  animation: fadeIn 0.32s ease both;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space);
+  margin-bottom: var(--space);
+  flex-wrap: wrap;
+}
+.page-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+.page-title {
+  margin: var(--space-xs) 0 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+.back-link:hover {
+  color: var(--color-primary);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.muted {
+  color: var(--color-text-secondary);
+}
+
+/* ---------- 工具栏 ---------- */
+.toolbar {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.toolbar__search {
+  width: 280px;
+  max-width: 100%;
+}
+.toolbar__select {
+  width: 160px;
+}
+
+/* ---------- 表格 ---------- */
+.wb-table {
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* 手动网格表（活动/箱子详情的嵌套行） */
+.wb-grid {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.wb-grid th,
+.wb-grid td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+.wb-grid th {
+  background: var(--color-bg-hover);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+.wb-grid tr:last-child td {
+  border-bottom: none;
+}
+.wb-grid .col-actions {
+  width: 150px;
+  text-align: right;
+}
+.wb-grid .row--sub td {
+  background: var(--color-bg-hover);
+}
+.sub-name {
+  padding-left: 24px !important;
+}
+.sub-badge {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 6px;
+  font-size: 11px;
+  border-radius: 4px;
+  background: var(--color-tag-bg);
+  color: var(--color-tag-text);
+}
+.row-actions {
+  display: inline-flex;
+  gap: 2px;
+  justify-content: flex-end;
+}
+.empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 28px 0 !important;
+}
+
+/* ---------- 分页 ---------- */
+.pager {
+  margin-top: var(--space);
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ---------- 卡片 ---------- */
+.wb-card {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- 表单 ---------- */
+/* 表单在卡片内自然撑满：桌面端不再限制 max-width（此前 640px 导致右半屏留白），
+   手机端本就是单列全宽，移除后无影响。 */
+.form-grid {
+  width: 100%;
+}
+.form-actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space);
+}
+/* 让 a-date-picker / a-select 等固定宽度组件与其它表单项等宽 */
+.full-width {
+  width: 100%;
+}
+
+/* ---------- 顶栏 ---------- */
+.topnav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-h);
+  background: var(--color-bg-elevated);
+  border-bottom: 1px solid var(--color-border);
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+.topnav__inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  height: 100%;
+  padding: 0 var(--space);
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+}
+.topnav__brand {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+.topnav__links {
+  display: flex;
+  gap: var(--space);
+  flex: 1;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.topnav__links::-webkit-scrollbar {
+  display: none;
+}
+.topnav__links a {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+.topnav__links a.router-link-active {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+.topnav__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.topnav__user {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* ---------- 动效 ---------- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes breathing {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+.breathing {
+  animation: breathing 3s ease-in-out infinite;
+}
+
+/* 路由切换淡入淡出 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* 登录页 */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space);
+  background: linear-gradient(135deg, var(--color-bg), var(--color-bg-elevated));
+}
+.login-card {
+  width: 360px;
+  max-width: 100%;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-md);
+}
+.login-title {
+  margin: 0 0 4px;
+  font-size: 22px;
+  text-align: center;
+}
+.login-sub {
+  margin: 0 0 var(--space-lg);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+/* 404 */
+.notfound {
+  text-align: center;
+  padding-top: 80px;
+}
+
+/* ---------- 暗色兜底（antd 组件） ----------
+   App.vue 已用 <a-config-provider :theme="{ algorithm: theme.darkAlgorithm }"> 让 antd
+   组件跟随暗色；此处只做「可读性兜底」：若某些环境下 CSS-in-JS 的暗色 token 未及时生效
+   （样式注入顺序 / 缓存导致浅色残留），标签与表格仍保证深底浅字。
+   原则：只兜底无语义色的 default 标签与表格容器背景；彩色标签（blue/green/gold...）
+   交给 antd 自己处理，不使用 !important 抢占其交互色。 */
+html.dark .ant-tag-default {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+html.dark .ant-tag-default a,
+html.dark .ant-tag-default a:hover {
+  color: var(--color-text);
+}
+html.dark .ant-tag-default .anticon-close {
+  color: var(--color-text-secondary);
+}
+
+/* a-table（.ant-table-wrapper.wb-table）整体随暗色，避免白底 */
+html.dark .wb-table,
+html.dark .wb-table .ant-table,
+html.dark .wb-table .ant-table-container,
+html.dark .wb-table .ant-table-content,
+html.dark .wb-table .ant-table-body {
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+}
+html.dark .wb-table .ant-table-thead > tr > th {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  border-bottom-color: var(--color-border);
+}
+html.dark .wb-table .ant-table-tbody > tr > td {
+  border-bottom-color: var(--color-border);
+  color: var(--color-text);
+}
+/* 行 hover 仍走「更亮一档」的背景，保持可交互反馈 */
+html.dark .wb-table .ant-table-tbody > tr.ant-table-row:hover > td,
+html.dark .wb-table .ant-table-tbody > tr > td.ant-table-cell-row-hover {
+  background: var(--color-bg-hover);
+}
+/* 固定列与空态单元格自带背景，需一并兜底否则会露出白块 */
+html.dark .wb-table .ant-table-cell-fix-left,
+html.dark .wb-table .ant-table-cell-fix-right,
+html.dark .wb-table .ant-table-placeholder > td,
+html.dark .wb-table .ant-table-placeholder:hover > td {
+  background: var(--color-bg-elevated);
+}
+html.dark .wb-table .ant-table-placeholder,
+html.dark .wb-table .ant-table-placeholder .ant-empty-description {
+  color: var(--color-text-secondary);
+}
+
+/* ---------- 移动端响应式（ant-design-vue 桌面优先，需适配手机） ---------- */
+@media (max-width: 768px) {
+  .page-container {
+    padding: var(--space) var(--space-sm);
+  }
+  .topnav__inner {
+    padding: 0 var(--space-sm);
+    gap: var(--space-sm);
+  }
+  .topnav__links {
+    gap: var(--space-sm);
+  }
+  .toolbar__search {
+    width: 100%;
+  }
+  .toolbar__select {
+    width: 100%;
+    max-width: 48%;
+  }
+  .page-title {
+    font-size: 19px;
+  }
+  /* 窄屏隐藏次要列 */
+  .wb-grid .hide-mobile,
+  .wb-table .hide-mobile {
+    display: none;
+  }
+  /* 触控区放大 */
+  .wb-grid td.col-actions,
+  .wb-table .col-actions {
+    width: auto;
+  }
+  .row-actions .wb-icon-btn {
+    padding: 8px 10px;
+  }
+  /* 表格横向滚动，避免列宽被压缩导致列头/内容错位 */
+  .wb-table {
+    overflow-x: auto;
+  }
+  .wb-table .ant-table {
+    min-width: 600px;
+  }
+  /* 手动网格表横向滚动容器 */
+  .table-scroll {
+    overflow-x: auto;
+  }
+  .table-scroll .wb-grid {
+    min-width: 480px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    flex-direction: column;
+  }
+  .toolbar__select {
+    max-width: 100%;
+  }
+}
