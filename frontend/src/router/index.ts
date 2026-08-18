@@ -35,6 +35,9 @@ const routes: RouteRecordRaw[] = [
   { path: `/${P}/logs`, name: 'logs', component: Logs },
   { path: `/${P}/search`, name: 'search', component: Search },
   { path: `/${P}/activity/edit/:id?`, name: 'activityEdit', component: ActivityEdit },
+  // 应用入口：/_wb 与 /_wb/ 是全局首页（活动列表），不能被 /:activityName 当成活动名
+  { path: `/${P}`, redirect: `/${P}/activities` },
+  { path: `/${P}/`, redirect: `/${P}/activities` },
 
   // ---------------- 活动页（动态段，后注册） ----------------
   { path: `/:activityName/已取出`, name: 'takenOut', component: TakenOut },
