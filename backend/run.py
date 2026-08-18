@@ -11,7 +11,7 @@ from app.core import config
 def main() -> None:
     parser = argparse.ArgumentParser(description="WhatsInTheBox 后端启动")
     parser.add_argument("--host", default="0.0.0.0", help="监听地址")
-    parser.add_argument("--port", type=int, default=8000, help="监听端口")
+    parser.add_argument("--port", type=int, default=8004, help="监听端口（与 frontend/vite.config.ts 的 dev 代理目标 127.0.0.1:8004 对齐）")
     parser.add_argument("--reload", action="store_true", help="开发模式（自动重载，单 worker）")
     parser.add_argument("--workers", type=int, default=4, help="生产 worker 数")
     args = parser.parse_args()

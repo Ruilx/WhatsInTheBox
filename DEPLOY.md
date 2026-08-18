@@ -2,8 +2,9 @@
 
 「箱子里面有什么 / WhatsInTheBox」前后端容器化部署。
 
-- 后端：FastAPI + pymysql（uvicorn 多 worker），监听 8000。
-- 前端：Vue3 构建产物，由 nginx:alpine 提供静态文件并反代 API，监听 80。
+- 后端：FastAPI + pymysql（uvicorn 多 worker），监听 **8004**（与 `frontend/vite.config.ts` dev 代理目标 `127.0.0.1:8004` 对齐）。
+- 前端：Vue3 构建产物，由 nginx:alpine 提供**静态文件（仅静态托管，不反代后端）**，监听 80。
+- API / 上传路由：生产下由**宿主机（外层）nginx 直接 `proxy_pass` 到 `172.19.0.2:8004`**（`deploy/host-nginx-wib.conf`），前端容器内 nginx 不再代理后端。
 - 数据库：你已有的 MySQL docker 容器（与后端同 `app-net` 内网，caching_sha2_password 保持不变）。
 
 ## 1. 前置条件
@@ -74,7 +75,7 @@ docker compose exec backend python seed.py --reset    # 重设管理员密码
 
 ## 7. 关于 MySQL 连接
 
-> ⚠️ dev MySQL `10.25.0.201` 已退役，现用**公司测试库 `10.4.215.193:3306`**。后端 `db.py` 连接时不选库 + 全限定表名（`whatsinthebox.xxx`），`DB_SSL=false` 明文；新库 rw=`whatsinthebox_rw`/`whatsintheboxrwmysqlpassword`(ALL on `whatsinthebox.*`)。下文针对 10.25.0.201 的诊断结论已作废，仅作历史留档。
+> ⚠️ dev MySQL `10.25.0.201` 已退役，公司测试库 `10.4.215.193` 也已弃用；**生产使用 `172.19.0.11:3306`（外部自管 MySQL，不在 compose 内）**，由 `backend/.env` 的 `DB_HOST`/`DB_PORT` 提供。后端 `db.py` 连接时不选库 + 全限定表名（`whatsinthebox.xxx`），`DB_SSL` 默认 true（SSL 可用时加密链路）；上文针对 10.25.0.201 的诊断结论已作废，仅作历史留档。
 
 > ⚠️ 诊断已更新（2026-08-13 复测，覆盖旧版结论）：早前观察到「只有原生 `mysql` CLI 能连、所有 Python 驱动 1045」，
 > 现**已证伪**——复测时原生 CLI 与所有 Python 驱动**同样**返回
@@ -135,7 +136,6 @@ docker compose exec backend python seed.py --reset    # 重设管理员密码
 ## 6. 常见排错
 
 - **后端起不来 / 1045**：检查 DB_HOST 是否指向同网络 MySQL、rw 密码是否正确、服务端 RSA 公钥是否已生成（§4）。
-- **前端白屏 / API 404**：确认 nginx 反代 `/whatsinthebox` 与 `/uploads` 到 backend:8000；
-  前端 `VITE_API_BASE` 默认 `/whatsinthebox`（相对路径，无需改）。
+- **前端白屏 / API 404**：确认 **API 反代到 8004**（非 8000）。生产（`docker-compose.prod.yml`）下由**宿主机外层 nginx** 把 `/whatsinthebox` 与 `/uploads` 直接 `proxy_pass` 到 `172.19.0.2:8004`（见 `deploy/host-nginx-wib.conf`），前端容器内 nginx 只做静态托管、不参与后端反代；故此处应检查外层 nginx 配置与后端容器是否真的监听 8004（`backend/Dockerfile` 的 uvicorn `--port 8004`）。前端 `VITE_API_BASE` 默认 `/whatsinthebox`（相对路径，无需改）。
 - **上传文件 404**：确认后端 `UPLOAD_DIR` 已挂载/可写，且 nginx `/uploads` 反代到位。
 - **CORS 报错**：把前端正式域名加入后端 `CORS_ORIGINS`（同网反代下通常同源，不会触发）。

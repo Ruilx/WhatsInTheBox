@@ -20,7 +20,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 复制后端代码（.env / .vendor 等敏感/本地目录由 .dockerignore 排除）
 COPY . .
 
-EXPOSE 8000
+# 容器内部监听 8004：生产 compose 已移除 ports 映射，外层 nginx 直接
+# proxy_pass http://172.19.0.2:8004，故容器内监听端口必须就是 8004。
+EXPOSE 8004
 
 # 多 worker；生产建议 2~4，按容器 CPU 调整
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8004", "--workers", "4"]

@@ -13,6 +13,11 @@ import { fileURLToPath, URL } from 'node:url'
 const PROXY_TARGET = process.env.API_PROXY_TARGET || 'http://127.0.0.1:8004'
 
 export default defineConfig({
+  // 相对路径产物：index.html 内资源写为 ./assets/...，由浏览器按当前文档前缀
+  // （/2026trip/ 或 /_wb/）解析，使资源自动落在外层 nginx 已路由的前缀内，
+  // 避开 base:'/' 时“外层无 /assets 路由 → 资源 404”的问题。
+  // 与 VITE_API_BASE 正交：base 只管构建期资源 URL，不影响运行时 API 绝对路径。
+  base: './',
   plugins: [vue()],
   resolve: {
     alias: {

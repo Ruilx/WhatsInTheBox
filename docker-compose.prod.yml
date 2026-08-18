@@ -1,0 +1,46 @@
+# 「箱子里面有什么」生产编排（前端打包 dist + nginx，后端 bake 源码）
+# 用法：docker compose -f docker-compose.prod.yml up -d --build
+#
+# 网络拓扑：自定义桥接网络 wib-net(172.19.0.0/16) + 静态 IP
+#   backend  172.19.0.2:8004   frontend 172.19.0.3:80
+#
+# 端口策略：**不做 ports 映射**。宿主机（外层）nginx 直接 proxy_pass 到容器 IP，
+#   因此「容器内部监听端口 = 外层 proxy_pass 目标端口」：后端须自监听 8004
+#   （见 backend/Dockerfile），前端监听 80。外层配置见 deploy/host-nginx-wib.conf。
+#
+# MySQL：外部自管，位于 172.19.0.11:3306，**不在本 compose 内**，
+#   由 backend/.env 的 DB_HOST/DB_PORT 提供连接信息。
+#   注意：backend 容器须能路由到该 IP（须与 wib-net 同网段或已挂载到该网络）。
+name: whatsinthebox-prod
+
+networks:
+  wib-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16
+
+services:
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    image: whatsinthebox-backend:prod
+    env_file:
+      - backend/.env
+    networks:
+      wib-net:
+        ipv4_address: 172.19.0.2
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    image: whatsinthebox-frontend:prod
+    networks:
+      wib-net:
+        ipv4_address: 172.19.0.3
+    depends_on:
+      - backend
+    restart: unless-stopped

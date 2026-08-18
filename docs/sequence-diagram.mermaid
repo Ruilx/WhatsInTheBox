@@ -1,0 +1,28 @@
+sequenceDiagram
+    participant B as 浏览器
+    participant HN as 宿主机 nginx
+    participant FE as 前端容器 (172.19.0.3:80)
+    participant BE as 后端容器 (172.19.0.2:8004)
+    participant DB as MySQL (172.19.0.11:3306)
+
+    Note over B,HN: 场景A —— 访问活动页 /2026trip/
+    B->>HN: GET /2026trip
+    HN->>HN: location = /2026trip → 301 /2026trip/
+    B->>HN: GET /2026trip/
+    HN->>HN: location /2026trip/ → proxy_pass http://172.19.0.3:80/ (剥离前缀)
+    HN->>FE: GET /
+    FE->>FE: try_files → /index.html (SPA 入口)
+    FE-->>B: 返回 index.html（资源写为 ./assets/...）
+    B->>HN: GET /2026trip/assets/index-xxx.js (浏览器相对 /2026trip/ 解析)
+    HN->>FE: GET /assets/index-xxx.js (剥离前缀)
+    FE-->>B: 静态资源 (1y 缓存)
+    Note over B: vue-router(createWebHistory) 读 pathname=/2026trip/ 匹配活动路由
+
+    Note over B,BE: 场景B —— 调用后端 API（同源绝对路径）
+    B->>HN: GET /whatsinthebox/api/xxx (绝对路径，与页面同域)
+    HN->>HN: location ^~ /whatsinthebox → proxy_pass http://172.19.0.2:8004 (保留前缀)
+    HN->>BE: GET /whatsinthebox/api/xxx
+    BE->>DB: SQL 查询
+    DB-->>BE: 结果
+    BE-->>HN: JSON
+    HN-->>B: JSON（同源，无 CORS）

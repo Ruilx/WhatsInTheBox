@@ -1,7 +1,7 @@
 // API 封装（dev-plan v4 §3.2 / §7.4 / §7.5）。
 //
 // - baseURL 取自 import.meta.env.VITE_API_BASE（默认 /whatsinthebox），
-//   与后端 API_PREFIX 一致；开发期由 vite 代理转发到 :8000。
+//   与后端 API_PREFIX 一致；开发期由 vite 代理转发到 127.0.0.1:8004（见 frontend/vite.config.ts 的 PROXY_TARGET）。
 // - withCredentials: true 携带 HttpOnly cookie（wb_session）实现登录态。
 // - 响应拦截：后端恒返回 HTTP 200 + {code,msg,data}（异常亦 200，见 main.py）。
 //   code===0 取 data；否则 message 报错并 reject；code===1002（未登录）清登录态跳登录。

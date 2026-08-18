@@ -49,16 +49,16 @@
 
 ### 1.3 前后端目录分离与启动
 
-- **后端**：`backend/` 内 `venv` + `pip install -r requirements.txt`；启动 `uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4`（开发 `--reload` 单 worker）。
+- **后端**：`backend/` 内 `venv` + `pip install -r requirements.txt`；启动 `uvicorn app.main:app --host 0.0.0.0 --port 8004 --workers 4`（开发 `--reload` 单 worker）。
 - **前端**：`frontend/` 内 `npm install`；开发 `npm run dev`（默认 5173）；构建 `npm run build`（`dist/`）。
-- **API 前缀**：后端 `/whatsinthebox/...`；前端 SPA 用户 URL 挂在 `/活动名/...`（及全局页 `/{GLOBAL_PREFIX}/...`，前缀来自配置，默认 `_wb`）。开发期 Vite `server.proxy` 将 `/whatsinthebox` 代理到 `http://localhost:8000`；前端 `axios` 的 `baseURL = /whatsinthebox`。
+- **API 前缀**：后端 `/whatsinthebox/...`；前端 SPA 用户 URL 挂在 `/活动名/...`（及全局页 `/{GLOBAL_PREFIX}/...`，前缀来自配置，默认 `_wb`）。开发期 Vite `server.proxy` 将 `/whatsinthebox` 代理到 `http://127.0.0.1:8004`（与 `frontend/vite.config.ts` 的 `PROXY_TARGET` 默认 `127.0.0.1:8004` 一致）；前端 `axios` 的 `baseURL = /whatsinthebox`。
 - **前端用户 URL 两段式**：
   - 活动页：`/活动名`、`/活动名/箱子名`、`/活动名/xxx-list`、`/活动名/已取出`（活动名是动态首段，全局唯一）。
   - 全局页：可配置前缀（来自 `VITE_GLOBAL_PREFIX`/`GLOBAL_PREFIX`，默认 `_wb`）下的固定路由（登录 `/{前缀}/login`、活动列表 `/{前缀}/activities`、联合物品 `/{前缀}/combos`、日志 `/{前缀}/logs`、搜索 `/{前缀}/search`、各 edit `/{前缀}/.../edit/:id?`）。**「已取出」不再有全局页，改挂活动内 `/活动名/已取出`**。
 
 ### 1.4 nginx 分流（v4：活动名前缀 + 可配置保留字前缀，默认 `_wb`，值取自 GLOBAL_PREFIX）
 
-- **后端 API**：`location /whatsinthebox/ { proxy_pass http://127.0.0.1:8000/whatsinthebox/; ... }`（与前端页面互不干扰）。
+- **后端 API**：`location /whatsinthebox/ { proxy_pass http://127.0.0.1:8004/whatsinthebox/; ... }`（与前端页面互不干扰）。
 - **前端 SPA（History 模式 fallback）**：`location / { root /path/to/frontend/dist; try_files $uri $uri/ /index.html; }`
   - nginx 按「首段路径是否等于**配置前缀 GLOBAL_PREFIX（默认 `_wb`，值来自配置，前端/后端/nginx 三处须一致）**」分流：
     - 首段**等于该配置值** → 落入全局页 SPA（如 `/_wb/login`、`/_wb/activities`、`/_wb/combos`、`/_wb/logs`）。
